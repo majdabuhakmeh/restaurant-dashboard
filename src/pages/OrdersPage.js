@@ -17,7 +17,7 @@ function OrdersPage() {
     setLoading(true);
     try {
       const res = await api.get('/orders');
-      setOrders(res.data);
+      setOrders(res.data.orders);
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
   };

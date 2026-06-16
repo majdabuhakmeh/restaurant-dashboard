@@ -18,6 +18,7 @@ import OrdersPage from './pages/OrdersPage';
 import MenuPage from './pages/MenuPage';
 import StaffPage from './pages/StaffPage';
 import ThemePage from './pages/ThemePage';
+import { logout, restoreSession } from './services/api';
 
 const drawerWidth = 280;
 
@@ -29,15 +30,15 @@ function App() {
   const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
 
   useEffect(() => {
-    const savedStaff = localStorage.getItem('staff');
-    if (savedStaff) setStaff(JSON.parse(savedStaff));
+    // Restore session from localStorage on app load
+    const savedStaff = restoreSession();
+    if (savedStaff) setStaff(savedStaff);
   }, []);
 
   const handleLogin = (staffData) => setStaff(staffData);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('staff');
+  const handleLogout = async () => {
+    await logout();
     setStaff(null);
   };
 

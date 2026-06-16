@@ -9,6 +9,7 @@ import api from '../services/api';
 
 function MenuPage() {
   const [items, setItems] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
@@ -17,8 +18,14 @@ function MenuPage() {
   useEffect(() => { fetchItems(); }, []);
 
   const fetchItems = async () => {
-    try { const res = await api.get('/menu-items'); setItems(res.data); }
-    catch (err) { console.error(err); }
+    try {
+      const [itemsRes, catsRes] = await Promise.all([
+        api.get('/menu-items'),
+        api.get('/menu-items/categories')
+      ]);
+      setItems(itemsRes.data.items);
+      setCategories(catsRes.data);
+    } catch (err) { console.error(err); }
     finally { setLoading(false); }
   };
 
@@ -82,9 +89,9 @@ function MenuPage() {
                     <InputLabel>Category</InputLabel>
                     <Select value={form.category_id} label="Category" onChange={(e) => setForm({ ...form, category_id: e.target.value })}>
                       <MenuItem value="">None</MenuItem>
-                      <MenuItem value="c1111111-1111-1111-1111-111111111111">Appetizers</MenuItem>
-                      <MenuItem value="c2222222-2222-2222-2222-222222222222">Main Course</MenuItem>
-                      <MenuItem value="c3333333-3333-3333-3333-333333333333">Drinks</MenuItem>
+                      {categories.map(cat => (
+                        <MenuItem key={cat.id} value={cat.id}>{cat.name}</MenuItem>
+                      ))}
                     </Select>
                   </FormControl>
                 </Grid>

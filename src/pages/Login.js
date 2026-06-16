@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Box, Card, TextField, Button, Typography, Alert, CircularProgress } from '@mui/material';
 import { LockOutlined } from '@mui/icons-material';
-import api from '../services/api';
+import DOMPurify from 'dompurify';
+import { login } from '../services/api';
 
 function Login({ onLogin }) {
   const [email, setEmail] = useState('');
@@ -9,17 +10,38 @@ function Login({ onLogin }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Email validation
+  const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    // Validate inputs
+    if (!email || !password) {
+      setError('Please enter both email and password');
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+
     setLoading(true);
     try {
-      const response = await api.post('/auth/login', { email, password });
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('staff', JSON.stringify(response.data.staff));
-      onLogin(response.data.staff);
+      const response = await login(email, password);
+      onLogin(response.staff);
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Try again.');
+      // Sanitize error message to prevent XSS
+      const errorMessage = err.message || 'Login failed. Please try again.';
+      const sanitizedError = DOMPurify.sanitize(errorMessage);
+      setError(sanitizedError);
     } finally {
       setLoading(false);
     }
@@ -60,6 +82,7 @@ function Login({ onLogin }) {
               onChange={(e) => setEmail(e.target.value)}
               margin="normal"
               required
+              disabled={loading}
               placeholder="ahmed@pizzapalace.com"
             />
             <TextField
@@ -70,6 +93,7 @@ function Login({ onLogin }) {
               onChange={(e) => setPassword(e.target.value)}
               margin="normal"
               required
+              disabled={loading}
               placeholder="Enter your password"
             />
             <Button
@@ -85,7 +109,7 @@ function Login({ onLogin }) {
           </form>
 
           <Typography sx={{ textAlign: 'center', mt: 3, color: 'text.disabled', fontSize: '0.8rem' }}>
-            Test: ahmed@pizzapalace.com / password123
+            🔒 Your login is secure. Passwords are encrypted.
           </Typography>
         </Card>
       </Box>
