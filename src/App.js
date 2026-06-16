@@ -13,6 +13,7 @@ import {
 } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import OrdersPage from './pages/OrdersPage';
 import MenuPage from './pages/MenuPage';
 import StaffPage from './pages/StaffPage';
@@ -35,6 +36,7 @@ function App() {
   const [staff, setStaff] = useState(null);
   const [activePage, setActivePage] = useState('orders');
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [authPage, setAuthPage] = useState('login'); // 'login' | 'register'
   const muiTheme = useTheme();
   const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
 
@@ -46,7 +48,12 @@ function App() {
   const handleLogin  = (staffData) => setStaff(staffData);
   const handleLogout = async () => { await logout(); setStaff(null); };
 
-  if (!staff) return <Login onLogin={handleLogin} />;
+  if (!staff) {
+    if (authPage === 'register') {
+      return <Register onLogin={handleLogin} onSignIn={() => setAuthPage('login')} />;
+    }
+    return <Login onLogin={handleLogin} onRegister={() => setAuthPage('register')} />;
+  }
 
   const rolePages = {
     admin:   ['orders', 'menu', 'staff', 'theme'],

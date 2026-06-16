@@ -81,6 +81,18 @@ export const login = async (email, password) => {
   }
 };
 
+// ─── REGISTER FUNCTION ───
+export const register = async ({ restaurantName, adminName, email, password }) => {
+  try {
+    const response = await api.post('/auth/register', { restaurantName, adminName, email, password });
+    accessToken = response.data.accessToken;
+    localStorage.setItem('staff', JSON.stringify(response.data.staff));
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Registration failed. Please try again.');
+  }
+};
+
 // ─── LOGOUT FUNCTION ───
 export const logout = async () => {
   try {

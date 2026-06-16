@@ -4,7 +4,7 @@ import { LockOutlined } from '@mui/icons-material';
 import DOMPurify from 'dompurify';
 import { login } from '../services/api';
 
-function Login({ onLogin }) {
+function Login({ onLogin, onRegister }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -107,7 +107,18 @@ function Login({ onLogin }) {
             </Button>
           </form>
 
-          <Typography sx={{ textAlign: 'center', mt: 3, color: 'text.disabled', fontSize: '0.78rem' }}>
+          <Typography sx={{ textAlign: 'center', mt: 3, color: 'text.secondary', fontSize: '0.85rem' }}>
+            New restaurant?{' '}
+            <Typography
+              component="span"
+              onClick={onRegister}
+              sx={{ color: 'primary.main', fontWeight: 700, cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+            >
+              Create your account →
+            </Typography>
+          </Typography>
+
+          <Typography sx={{ textAlign: 'center', mt: 1.5, color: 'text.disabled', fontSize: '0.75rem' }}>
             🔒 Your login is secure and encrypted.
           </Typography>
         </Card>
