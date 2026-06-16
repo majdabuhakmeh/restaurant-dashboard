@@ -214,7 +214,7 @@ function App() {
       {/* Sidebar */}
       <Box component="nav" sx={{ width: { md: DRAWER_WIDTH }, flexShrink: { md: 0 } }}>
         {isMobile ? (
-          <Drawer variant="temporary" open={mobileOpen} onClose={() => setMobileOpen(false)} ModalProps={{ keepMounted: true }}
+          <Drawer variant="temporary" open={mobileOpen} onClose={() => setMobileOpen(false)}
             sx={{ '& .MuiDrawer-paper': { width: DRAWER_WIDTH, border: 'none', boxShadow: 'none' } }}>
             {drawer}
           </Drawer>
