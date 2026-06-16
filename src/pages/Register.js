@@ -160,14 +160,16 @@ function Register({ onLogin, onSignIn }) {
               margin="normal"
               required
               disabled={loading}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={() => setShowPass(!showPass)} edge="end" size="small" tabIndex={-1}>
-                      {showPass ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={() => setShowPass(!showPass)} edge="end" size="small" tabIndex={-1}>
+                        {showPass ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
               }}
             />
             <TextField
