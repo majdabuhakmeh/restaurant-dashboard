@@ -16,7 +16,8 @@ const ROLES = [
   { value: 'driver',  label: '🚗 Driver' },
 ];
 
-const ROLE_COLORS = { admin: '#ef4444', manager: '#8b5cf6', kitchen: '#f59e0b', waiter: '#3b82f6', cashier: '#10b981', driver: '#06b6d4' };
+const ROLE_COLORS = { admin: '#fce7f3', manager: '#ede9fe', kitchen: '#fef3c7', waiter: '#dbeafe', cashier: '#d1fae5', driver: '#cffafe' };
+const ROLE_TEXT   = { admin: '#be185d', manager: '#6d28d9', kitchen: '#b45309', waiter: '#1d4ed8', cashier: '#065f46', driver: '#0e7490' };
 const ROLE_EMOJIS = { admin: '👑', manager: '📋', kitchen: '👨‍🍳', waiter: '🍽️', cashier: '💰', driver: '🚗' };
 
 const EMPTY_ADD_FORM = { name: '', email: '', password: '', role: 'waiter' };
@@ -111,12 +112,12 @@ function StaffPage() {
           <Grid item xs={12} sm={6} md={4} lg={3} key={member.id}>
             <Card sx={{ textAlign: 'center', transition: '0.2s', '&:hover': { transform: 'translateY(-2px)', boxShadow: 4 } }}>
               <CardContent sx={{ py: 3 }}>
-                <Avatar sx={{ width: 56, height: 56, mx: 'auto', mb: 1.5, bgcolor: ROLE_COLORS[member.role], fontSize: '1.5rem' }}>
+                <Avatar sx={{ width: 56, height: 56, mx: 'auto', mb: 1.5, bgcolor: ROLE_COLORS[member.role], color: ROLE_TEXT[member.role], fontSize: '1.5rem', border: `2px solid ${ROLE_TEXT[member.role]}30` }}>
                   {ROLE_EMOJIS[member.role] || '👤'}
                 </Avatar>
                 <Typography variant="h6" fontWeight={600}>{member.name}</Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>{member.email}</Typography>
-                <Chip label={member.role} size="small" sx={{ bgcolor: ROLE_COLORS[member.role], color: 'white', fontWeight: 700, mb: 1 }} />
+                <Chip label={member.role} size="small" sx={{ bgcolor: ROLE_COLORS[member.role], color: ROLE_TEXT[member.role], fontWeight: 700, mb: 1 }} />
                 {!member.is_active && (
                   <Chip label="Inactive" size="small" sx={{ ml: 0.5, mb: 1, bgcolor: '#e5e7eb', color: '#6b7280', fontWeight: 700 }} />
                 )}
