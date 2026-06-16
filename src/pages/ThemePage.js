@@ -1,37 +1,57 @@
 import React, { useState, useEffect } from 'react';
+import {
+  Box, Card, CardContent, Typography, Button, Grid, TextField,
+  FormControl, InputLabel, Select, MenuItem, CircularProgress, Alert
+} from '@mui/material';
+import { Save, Palette } from '@mui/icons-material';
 import api from '../services/api';
+
+const COLOR_FIELDS = [
+  { key: 'primary_color',    label: 'Primary Color'    },
+  { key: 'secondary_color',  label: 'Secondary Color'  },
+  { key: 'background_color', label: 'Background'       },
+  { key: 'text_color',       label: 'Text Color'       },
+];
 
 function ThemePage() {
   const [settings, setSettings] = useState({
-    logo_url: '',
-    primary_color: '#ff6b35',
-    secondary_color: '#2c3e50',
+    logo_url:         '',
+    primary_color:    '#ff6b35',
+    secondary_color:  '#2c3e50',
     background_color: '#ffffff',
-    text_color: '#333333',
-    font_family: 'Cairo',
-    button_style: 'rounded',
-    welcome_message: '',
-    currency: 'SAR',
-    language: 'ar'
+    text_color:       '#333333',
+    font_family:      'Cairo',
+    button_style:     'rounded',
+    welcome_message:  '',
+    currency:         'SAR',
+    language:         'ar',
   });
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [saving,  setSaving]  = useState(false);
+  const [saved,   setSaved]   = useState(false);
 
   useEffect(() => { fetchSettings(); }, []);
 
   const fetchSettings = async () => {
     try {
       const res = await api.get('/settings');
-      setSettings(res.data);
+      setSettings(prev => ({ ...prev, ...res.data }));
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
   };
 
+  const set = (field) => (e) => {
+    setSaved(false);
+    setSettings(prev => ({ ...prev, [field]: e.target.value }));
+  };
+
   const handleSave = async () => {
     setSaving(true);
+    setSaved(false);
     try {
       await api.put('/settings', settings);
-      alert('✅ Theme & settings saved successfully!');
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
     } catch (err) {
       alert('Error: ' + (err.response?.data?.message || err.message));
     } finally { setSaving(false); }
@@ -39,179 +59,259 @@ function ThemePage() {
 
   const handleLogoUpload = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      // Convert to base64 for preview (in production, upload to cloud storage)
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setSettings({ ...settings, logo_url: reader.result });
-      };
-      reader.readAsDataURL(file);
-    }
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => setSettings(prev => ({ ...prev, logo_url: reader.result }));
+    reader.readAsDataURL(file);
   };
 
-  if (loading) return <div className="empty-state"><p>Loading settings...</p></div>;
+  const buttonRadius =
+    settings.button_style === 'pill'   ? '50px' :
+    settings.button_style === 'square' ? '0'    : '12px';
 
-  const buttonRadius = settings.button_style === 'pill' ? '50px' : settings.button_style === 'square' ? '0' : '12px';
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <CircularProgress color="primary" />
+      </Box>
+    );
+  }
 
   return (
-    <div>
-      <div className="page-header">
-        <h1>🎨 Theme & Settings</h1>
-        <button className="btn btn-success" onClick={handleSave} disabled={saving}>
-          {saving ? '⏳ Saving...' : '💾 Save Changes'}
-        </button>
-      </div>
+    <Box>
+      {/* ── Header ── */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
+        <Typography variant="h4">🎨 Theme & Settings</Typography>
+        <Button
+          variant="contained"
+          startIcon={saving ? <CircularProgress size={16} color="inherit" /> : <Save />}
+          onClick={handleSave}
+          disabled={saving}
+        >
+          {saving ? 'Saving...' : 'Save Changes'}
+        </Button>
+      </Box>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '24px' }}>
-        {/* Settings Panel */}
-        <div>
-          {/* Logo Upload */}
-          <div className="card" style={{ marginBottom: '20px' }}>
-            <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: 600 }}>📷 Restaurant Logo</h3>
-            <div className="logo-upload" onClick={() => document.getElementById('logo-input').click()}>
-              {settings.logo_url ? (
-                <img src={settings.logo_url} alt="Logo" />
-              ) : (
-                <div className="placeholder">🍕</div>
-              )}
-              <p style={{ fontSize: '13px', color: '#888' }}>Click to upload logo</p>
-              <p style={{ fontSize: '11px', color: '#bbb' }}>PNG, JPG • Max 2MB</p>
-            </div>
-            <input id="logo-input" type="file" accept="image/*" onChange={handleLogoUpload} style={{ display: 'none' }} />
-            
-            {/* OR paste URL */}
-            <div className="form-group" style={{ marginTop: '16px' }}>
-              <label>Or paste logo URL:</label>
-              <input
-                className="form-input"
+      {saved && <Alert severity="success" sx={{ mb: 3, borderRadius: 2 }}>✅ Settings saved successfully!</Alert>}
+
+      <Grid container spacing={3}>
+        {/* ── Left: Settings ── */}
+        <Grid item xs={12} md={7} lg={8}>
+
+          {/* Logo */}
+          <Card sx={{ mb: 3 }}>
+            <CardContent>
+              <Typography variant="h6" sx={{ mb: 2 }}>📷 Restaurant Logo</Typography>
+
+              <Box
+                onClick={() => document.getElementById('logo-input').click()}
+                sx={{
+                  border: '2px dashed',
+                  borderColor: 'primary.light',
+                  borderRadius: 3,
+                  p: 3,
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  mb: 2,
+                  bgcolor: '#fff0f5',
+                  transition: '0.2s',
+                  '&:hover': { borderColor: 'primary.main', bgcolor: '#ffe4ee' },
+                }}
+              >
+                {settings.logo_url ? (
+                  <img src={settings.logo_url} alt="Logo" style={{ width: 80, height: 80, borderRadius: 12, objectFit: 'cover' }} />
+                ) : (
+                  <Box>
+                    <Typography sx={{ fontSize: '2.5rem', lineHeight: 1, mb: 1 }}>🍕</Typography>
+                    <Typography variant="body2" color="text.secondary">Click to upload logo</Typography>
+                    <Typography variant="caption" color="text.disabled">PNG, JPG • Max 2MB</Typography>
+                  </Box>
+                )}
+              </Box>
+              <input id="logo-input" type="file" accept="image/*" onChange={handleLogoUpload} style={{ display: 'none' }} />
+
+              <TextField
+                fullWidth
+                label="Or paste logo URL"
                 placeholder="https://example.com/logo.png"
                 value={settings.logo_url || ''}
-                onChange={(e) => setSettings({ ...settings, logo_url: e.target.value })}
+                onChange={set('logo_url')}
+                size="small"
               />
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Colors */}
-          <div className="card" style={{ marginBottom: '20px' }}>
-            <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: 600 }}>🎨 Colors</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              {[
-                { key: 'primary_color', label: 'Primary Color' },
-                { key: 'secondary_color', label: 'Secondary Color' },
-                { key: 'background_color', label: 'Background' },
-                { key: 'text_color', label: 'Text Color' }
-              ].map(({ key, label }) => (
-                <div key={key}>
-                  <label style={{ fontSize: '13px', fontWeight: 600, color: '#555' }}>{label}</label>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px' }}>
-                    <input
-                      type="color"
-                      value={settings[key] || '#000000'}
-                      onChange={(e) => setSettings({ ...settings, [key]: e.target.value })}
-                      style={{ width: '48px', height: '40px', border: '2px solid #e8e8e8', borderRadius: '10px', cursor: 'pointer', padding: '2px' }}
-                    />
-                    <input
-                      className="form-input"
-                      value={settings[key] || ''}
-                      onChange={(e) => setSettings({ ...settings, [key]: e.target.value })}
-                      style={{ flex: 1 }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <Card sx={{ mb: 3 }}>
+            <CardContent>
+              <Typography variant="h6" sx={{ mb: 2.5 }}>🎨 Colors</Typography>
+              <Grid container spacing={2}>
+                {COLOR_FIELDS.map(({ key, label }) => (
+                  <Grid item xs={12} sm={6} key={key}>
+                    <Typography variant="caption" sx={{ fontWeight: 600, color: 'text.secondary', display: 'block', mb: 0.5 }}>
+                      {label}
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box sx={{ position: 'relative', width: 44, height: 44, flexShrink: 0 }}>
+                        <input
+                          type="color"
+                          value={settings[key] || '#000000'}
+                          onChange={set(key)}
+                          style={{
+                            width: '44px', height: '44px',
+                            border: '2px solid #e5e7eb',
+                            borderRadius: '10px',
+                            cursor: 'pointer',
+                            padding: '2px',
+                            backgroundColor: 'white',
+                          }}
+                        />
+                      </Box>
+                      <TextField
+                        value={settings[key] || ''}
+                        onChange={set(key)}
+                        size="small"
+                        sx={{ flex: 1 }}
+                        inputProps={{ style: { fontFamily: 'monospace', fontSize: '0.85rem' } }}
+                      />
+                    </Box>
+                  </Grid>
+                ))}
+              </Grid>
+            </CardContent>
+          </Card>
 
           {/* Typography & Style */}
-          <div className="card" style={{ marginBottom: '20px' }}>
-            <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: 600 }}>🔤 Typography & Style</h3>
-            <div className="form-grid">
-              <div className="form-group">
-                <label>Font Family</label>
-                <select className="form-input" value={settings.font_family || 'Cairo'} onChange={(e) => setSettings({ ...settings, font_family: e.target.value })}>
-                  <option value="Cairo">Cairo (Arabic)</option>
-                  <option value="Tajawal">Tajawal (Arabic)</option>
-                  <option value="Poppins">Poppins (English)</option>
-                  <option value="Inter">Inter (English)</option>
-                  <option value="Roboto">Roboto (English)</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Button Style</label>
-                <select className="form-input" value={settings.button_style || 'rounded'} onChange={(e) => setSettings({ ...settings, button_style: e.target.value })}>
-                  <option value="rounded">Rounded</option>
-                  <option value="square">Square</option>
-                  <option value="pill">Pill</option>
-                </select>
-              </div>
-            </div>
-          </div>
+          <Card sx={{ mb: 3 }}>
+            <CardContent>
+              <Typography variant="h6" sx={{ mb: 2.5 }}>🔤 Typography & Style</Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <FormControl fullWidth size="small">
+                    <InputLabel>Font Family</InputLabel>
+                    <Select value={settings.font_family || 'Cairo'} label="Font Family" onChange={set('font_family')}>
+                      <MenuItem value="Cairo">Cairo (Arabic)</MenuItem>
+                      <MenuItem value="Tajawal">Tajawal (Arabic)</MenuItem>
+                      <MenuItem value="Poppins">Poppins (English)</MenuItem>
+                      <MenuItem value="Inter">Inter (English)</MenuItem>
+                      <MenuItem value="Roboto">Roboto (English)</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <FormControl fullWidth size="small">
+                    <InputLabel>Button Style</InputLabel>
+                    <Select value={settings.button_style || 'rounded'} label="Button Style" onChange={set('button_style')}>
+                      <MenuItem value="rounded">Rounded</MenuItem>
+                      <MenuItem value="square">Square</MenuItem>
+                      <MenuItem value="pill">Pill</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
 
-          {/* Restaurant Settings */}
-          <div className="card">
-            <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: 600 }}>⚙️ Restaurant Info</h3>
-            <div className="form-grid">
-              <div className="form-group">
-                <label>Welcome Message</label>
-                <input className="form-input" placeholder="Welcome to our restaurant!" value={settings.welcome_message || ''} onChange={(e) => setSettings({ ...settings, welcome_message: e.target.value })} />
-              </div>
-              <div className="form-group">
-                <label>Currency</label>
-                <select className="form-input" value={settings.currency || 'SAR'} onChange={(e) => setSettings({ ...settings, currency: e.target.value })}>
-                  <option value="SAR">SAR (ريال)</option>
-                  <option value="USD">USD ($)</option>
-                  <option value="EUR">EUR (€)</option>
-                  <option value="AED">AED (درهم)</option>
-                  <option value="JOD">JOD (دينار)</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Language</label>
-                <select className="form-input" value={settings.language || 'ar'} onChange={(e) => setSettings({ ...settings, language: e.target.value })}>
-                  <option value="ar">العربية</option>
-                  <option value="en">English</option>
-                  <option value="fr">Français</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
+          {/* Restaurant Info */}
+          <Card>
+            <CardContent>
+              <Typography variant="h6" sx={{ mb: 2.5 }}>⚙️ Restaurant Info</Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth size="small"
+                    label="Welcome Message"
+                    placeholder="Welcome to our restaurant!"
+                    value={settings.welcome_message || ''}
+                    onChange={set('welcome_message')}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <FormControl fullWidth size="small">
+                    <InputLabel>Currency</InputLabel>
+                    <Select value={settings.currency || 'SAR'} label="Currency" onChange={set('currency')}>
+                      <MenuItem value="SAR">SAR (ريال)</MenuItem>
+                      <MenuItem value="USD">USD ($)</MenuItem>
+                      <MenuItem value="EUR">EUR (€)</MenuItem>
+                      <MenuItem value="AED">AED (درهم)</MenuItem>
+                      <MenuItem value="JOD">JOD (دينار)</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <FormControl fullWidth size="small">
+                    <InputLabel>Language</InputLabel>
+                    <Select value={settings.language || 'ar'} label="Language" onChange={set('language')}>
+                      <MenuItem value="ar">العربية</MenuItem>
+                      <MenuItem value="en">English</MenuItem>
+                      <MenuItem value="fr">Français</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
+        </Grid>
 
-        {/* Live Preview */}
-        <div style={{ position: 'sticky', top: '20px', alignSelf: 'start' }}>
-          <h3 style={{ marginBottom: '12px', fontSize: '14px', color: '#888' }}>📱 Live Preview</h3>
-          <div style={{ border: '3px solid #e0e0e0', borderRadius: '28px', overflow: 'hidden', boxShadow: '0 10px 40px rgba(0,0,0,0.1)', backgroundColor: settings.background_color, fontFamily: settings.font_family }}>
-            {/* Header */}
-            <div style={{ backgroundColor: settings.primary_color, padding: '20px', textAlign: 'center', color: 'white' }}>
-              {settings.logo_url && <img src={settings.logo_url} alt="Logo" style={{ width: '48px', height: '48px', borderRadius: '12px', marginBottom: '8px', objectFit: 'cover' }} />}
-              <h3 style={{ margin: 0, fontSize: '18px' }}>Pizza Palace</h3>
-              <p style={{ margin: '4px 0 0', fontSize: '12px', opacity: 0.9 }}>{settings.welcome_message || 'Welcome!'}</p>
-            </div>
-            {/* Items */}
-            <div style={{ padding: '16px' }}>
-              {['Margherita Pizza', 'Garlic Bread'].map((name, i) => (
-                <div key={i} style={{ backgroundColor: '#f8f9fa', padding: '14px', borderRadius: '10px', marginBottom: '10px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      <p style={{ margin: 0, fontWeight: 600, fontSize: '14px', color: settings.text_color }}>{name}</p>
-                      <p style={{ margin: '4px 0 0', color: settings.primary_color, fontWeight: 700, fontSize: '15px' }}>
+        {/* ── Right: Live Preview ── */}
+        <Grid item xs={12} md={5} lg={4}>
+          <Box sx={{ position: 'sticky', top: 24 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5, fontWeight: 600 }}>
+              📱 Live Preview
+            </Typography>
+            <Box sx={{ border: '3px solid #e5e7eb', borderRadius: '28px', overflow: 'hidden', boxShadow: '0 10px 40px rgba(0,0,0,0.1)', bgcolor: settings.background_color, fontFamily: settings.font_family }}>
+              {/* Phone header */}
+              <Box sx={{ bgcolor: settings.primary_color, p: 2.5, textAlign: 'center', color: 'white' }}>
+                {settings.logo_url && (
+                  <Box component="img" src={settings.logo_url} alt="Logo" sx={{ width: 48, height: 48, borderRadius: '12px', mb: 1, objectFit: 'cover', display: 'block', mx: 'auto' }} />
+                )}
+                <Typography sx={{ fontWeight: 700, fontSize: '1rem', color: 'white' }}>Pizza Palace</Typography>
+                <Typography sx={{ fontSize: '0.75rem', opacity: 0.9, color: 'white', mt: 0.3 }}>
+                  {settings.welcome_message || 'Welcome!'}
+                </Typography>
+              </Box>
+
+              {/* Menu items */}
+              <Box sx={{ p: 2 }}>
+                {['Margherita Pizza', 'Garlic Bread'].map((name, i) => (
+                  <Box key={i} sx={{ bgcolor: '#f8f9fa', p: 1.5, borderRadius: '10px', mb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Box>
+                      <Typography sx={{ fontWeight: 600, fontSize: '0.85rem', color: settings.text_color }}>{name}</Typography>
+                      <Typography sx={{ color: settings.primary_color, fontWeight: 700, fontSize: '0.9rem', mt: 0.3 }}>
                         {settings.currency} {i === 0 ? '12.99' : '5.99'}
-                      </p>
-                    </div>
-                    <button style={{ padding: '8px 14px', backgroundColor: settings.primary_color, color: 'white', border: 'none', borderRadius: buttonRadius, fontSize: '12px', fontWeight: 600 }}>
+                      </Typography>
+                    </Box>
+                    <Box
+                      component="button"
+                      sx={{ px: 1.5, py: 0.6, bgcolor: settings.primary_color, color: 'white', border: 'none', borderRadius: buttonRadius, fontSize: '0.75rem', fontWeight: 600, cursor: 'default', fontFamily: 'inherit' }}
+                    >
                       + Add
-                    </button>
-                  </div>
-                </div>
+                    </Box>
+                  </Box>
+                ))}
+
+                <Box
+                  component="button"
+                  sx={{ width: '100%', py: 1.5, bgcolor: settings.secondary_color, color: 'white', border: 'none', borderRadius: buttonRadius, fontWeight: 700, fontSize: '0.85rem', mt: 0.5, cursor: 'default', fontFamily: 'inherit' }}
+                >
+                  🛒 View Cart — {settings.currency} 18.98
+                </Box>
+              </Box>
+            </Box>
+
+            {/* Color swatches summary */}
+            <Box sx={{ mt: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+              {COLOR_FIELDS.map(({ key, label }) => (
+                <Box key={key} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <Box sx={{ width: 14, height: 14, borderRadius: '50%', bgcolor: settings[key], border: '1px solid #e5e7eb' }} />
+                  <Typography variant="caption" color="text.secondary">{label.split(' ')[0]}</Typography>
+                </Box>
               ))}
-              <button style={{ width: '100%', padding: '14px', backgroundColor: settings.secondary_color, color: 'white', border: 'none', borderRadius: buttonRadius, fontWeight: 700, fontSize: '14px', marginTop: '8px' }}>
-                🛒 View Cart — {settings.currency} 18.98
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+            </Box>
+          </Box>
+        </Grid>
+      </Grid>
+    </Box>
   );
 }
 
