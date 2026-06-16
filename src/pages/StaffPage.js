@@ -16,8 +16,8 @@ const ROLES = [
   { value: 'driver',  label: '🚗 Driver' },
 ];
 
-const ROLE_COLORS = { admin: '#fce7f3', manager: '#ede9fe', kitchen: '#fef3c7', waiter: '#dbeafe', cashier: '#d1fae5', driver: '#cffafe' };
-const ROLE_TEXT   = { admin: '#be185d', manager: '#6d28d9', kitchen: '#b45309', waiter: '#1d4ed8', cashier: '#065f46', driver: '#0e7490' };
+const ROLE_COLORS = { admin: '#fff0f5', manager: '#ede9fe', kitchen: '#fef3c7', waiter: '#dbeafe', cashier: '#d1fae5', driver: '#cffafe' };
+const ROLE_TEXT   = { admin: '#FF2D6B', manager: '#6d28d9', kitchen: '#b45309', waiter: '#1d4ed8', cashier: '#065f46', driver: '#0e7490' };
 const ROLE_EMOJIS = { admin: '👑', manager: '📋', kitchen: '👨‍🍳', waiter: '🍽️', cashier: '💰', driver: '🚗' };
 
 const EMPTY_ADD_FORM = { name: '', email: '', password: '', role: 'waiter' };

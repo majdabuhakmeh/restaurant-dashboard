@@ -42,7 +42,7 @@ function Login({ onLogin, onRegister }) {
         justifyContent: 'center',
         alignItems: 'center',
         p: 6,
-        background: 'linear-gradient(160deg, #7c3aed 0%, #a855f7 55%, #c084fc 100%)',
+        background: 'linear-gradient(160deg, #d4175a 0%, #FF2D6B 55%, #ff6b9d 100%)',
         position: 'relative',
         overflow: 'hidden',
       }}>
@@ -76,7 +76,7 @@ function Login({ onLogin, onRegister }) {
 
           {/* Icon */}
           <Box sx={{ textAlign: 'center', mb: 3.5 }}>
-            <Box sx={{ width: 56, height: 56, borderRadius: 3, background: 'linear-gradient(135deg, #a855f7, #7c3aed)', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 2, boxShadow: '0 4px 14px rgba(168,85,247,0.35)' }}>
+            <Box sx={{ width: 56, height: 56, borderRadius: 3, background: 'linear-gradient(135deg, #FF2D6B, #d4175a)', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 2, boxShadow: '0 4px 14px rgba(255,45,107,0.35)' }}>
               <LockOutlined sx={{ color: 'white', fontSize: 26 }} />
             </Box>
             <Typography variant="h5" fontWeight={700} color="text.primary">Welcome back</Typography>
