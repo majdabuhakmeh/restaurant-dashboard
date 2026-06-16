@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box, Drawer, List, ListItemButton, ListItemIcon, ListItemText,
+  Box, List, ListItemButton, ListItemIcon, ListItemText,
   Typography, Avatar, IconButton, useMediaQuery, Chip
 } from '@mui/material';
 import {
@@ -201,6 +201,33 @@ function App() {
 
   return (
     <Box sx={{ display: 'flex', bgcolor: 'background.default', minHeight: '100vh' }}>
+
+      {/* Mobile backdrop — plain div, no MUI Modal */}
+      {isMobile && mobileOpen && (
+        <Box
+          onClick={() => setMobileOpen(false)}
+          sx={{ position: 'fixed', inset: 0, bgcolor: 'rgba(0,0,0,0.4)', zIndex: 1100 }}
+        />
+      )}
+
+      {/* Sidebar — plain Box, no MUI Drawer */}
+      <Box
+        component="aside"
+        sx={{
+          position: 'fixed',
+          top: 0,
+          left: { xs: mobileOpen ? 0 : -DRAWER_WIDTH, md: 0 },
+          height: '100vh',
+          width: DRAWER_WIDTH,
+          zIndex: 1200,
+          transition: 'left 0.25s ease',
+          overflowY: 'auto',
+          overflowX: 'hidden',
+        }}
+      >
+        {drawer}
+      </Box>
+
       {/* Mobile hamburger */}
       {isMobile && (
         <IconButton
@@ -211,22 +238,17 @@ function App() {
         </IconButton>
       )}
 
-      {/* Sidebar */}
-      <Box component="nav" sx={{ width: { md: DRAWER_WIDTH }, flexShrink: { md: 0 } }}>
-        {isMobile ? (
-          <Drawer variant="temporary" open={mobileOpen} onClose={() => setMobileOpen(false)}
-            sx={{ '& .MuiDrawer-paper': { width: DRAWER_WIDTH, border: 'none', boxShadow: 'none' } }}>
-            {drawer}
-          </Drawer>
-        ) : (
-          <Drawer variant="permanent" sx={{ '& .MuiDrawer-paper': { width: DRAWER_WIDTH, border: 'none', boxShadow: 'none' } }}>
-            {drawer}
-          </Drawer>
-        )}
-      </Box>
-
       {/* Main content */}
-      <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, sm: 3, md: 4 }, width: { md: `calc(100% - ${DRAWER_WIDTH}px)` }, minHeight: '100vh' }}>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          ml: { md: `${DRAWER_WIDTH}px` },
+          p: { xs: 2, sm: 3, md: 4 },
+          minHeight: '100vh',
+          width: { xs: '100%', md: `calc(100% - ${DRAWER_WIDTH}px)` },
+        }}
+      >
         {pages[activePage]?.component}
       </Box>
     </Box>
