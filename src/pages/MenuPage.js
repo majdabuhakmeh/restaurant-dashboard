@@ -10,7 +10,7 @@ import api from '../services/api';
 function MenuPage() {
   const [items, setItems] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [form, setForm] = useState({ name: '', description: '', price: '', category_id: '', is_available: true });

@@ -50,7 +50,7 @@ function StatCard({ label, value, icon, sparkData, dataKey }) {
 function DashboardPage() {
   const [stats, setStats]       = useState({ orders: 0, menuItems: 0, staff: 0, revenue: 0 });
   const [monthlyData, setMonthly] = useState(MONTHS.map(m => ({ month: m, orders: 0, revenue: 0 })));
-  const [loading, setLoading]   = useState(true);
+  const [_loading, setLoading]   = useState(true);
 
   useEffect(() => {
     fetchAll();

@@ -24,7 +24,7 @@ const EMPTY_ADD_FORM = { name: '', email: '', password: '', role: 'waiter' };
 
 function StaffPage() {
   const [staff, setStaff] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [addForm, setAddForm] = useState(EMPTY_ADD_FORM);
 

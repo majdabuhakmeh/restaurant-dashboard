@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box, Card, CardContent, Typography, Button, Chip, Grid,
-  ToggleButton, ToggleButtonGroup, IconButton, Tooltip
+  ToggleButton, ToggleButtonGroup, Tooltip
 } from '@mui/material';
 import { Refresh, TrendingUp, AccessTime, CheckCircle, LocalShipping } from '@mui/icons-material';
 import api from '../services/api';
 
 function OrdersPage() {
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
 
   useEffect(() => { fetchOrders(); }, []);
